@@ -8,33 +8,24 @@ from random import uniform
 def create_function(function_representation):
     def expression(x):
         try:
+            # Evaluate the function
+            # WARNING: Unsafe implementation
             return eval(function_representation)
         except:
+            # return a line with slope of 1
             return x
+
     # Get slope and y-intercept at 0
-    x0 = 0
-    x1 = 0.001
-    y_intercept = expression(x0)
-    y1 = expression(x1)
-    slope = (y1 - y_intercept) / (x1 - x0)
-    return expression, slope, y_intercept
+    delta_x = 0.001
+
+    y0 = expression(0)
+    y1 = expression(delta_x)
+
+    slope = (y1 - y0) / delta_x
+
+    return expression, slope, y0
 
 
-# r = tolerance
-# m = perpendicular slope
-
-# r * sin(atan(m)) = Δy0
-# r * cos(atan(m)) = Δx0
-
-# center_x0 + Δx0 = x1
-# center_y0 + Δy0 = y1
-
-# abs(tolerance) / sqrt(m**2 + 1) = center_Δx0
-
-# x1 + center_Δx0 = center_x1
-# m * (x2) + b = center_y1
-
-# repeat
 def get_points():
     # Starting point is y-intercept
     center_x, center_y = 0, b
@@ -61,33 +52,45 @@ def get_points():
         center_y = line_function(center_x)
 
         # Find the slope of the line at the new point
-        y0 = line_function(point_x)
-        y1 = line_function(point_x + slope_delta_x)
-        inv_slope = slope_delta_x / -(y1 - y0)
+        y0 = line_function(center_x)
+        y1 = line_function(center_x + slope_delta_x)
+        delta_y = -(y1 - y0)
+        inv_slope = (slope_delta_x / delta_y) if delta_y > 0.0001 else 0
 
         yield point.Location(x=point_x, y=point_y)
 
 
 def main():
+    # Step to get smooth lines
     step = pi/1024
+    # Generator object for creating points
     next_point = get_points()
 
+    # lists for x and y values of the points and the line function
     points_x = []
     points_y = []
     line_x = []
     line_y = []
 
+    # Create all of the points and add their coordinates to the respective lists
     for x in range(num_points):
         p = point.Point(next(next_point, None))
         points_x.append(p.location.x)
         points_y.append(p.location.y)
 
-    length = int(ceil(points_x[len(points_x) - 1]) / step)
-    x_axis = np.zeros(abs(length))
-    for x in range(abs(length)):
+    # Calculate the range of the data
+    start = int(ceil(points_x[0]))
+    length = int(ceil(points_x[num_points - 1]) / step)
+
+    # Create list of y values to view the x-axis
+    x_axis = np.zeros(abs(length) - start)
+
+    # Create the lists of x and y values to display the function
+    for x in range(start, abs(length)):
         line_x.append(x*step * (length / abs(length)))
         line_y.append(line_function(x*step) * (length / abs(length)))
 
+    # Plot all lines and points
     plt.plot(line_x, line_y)
     plt.plot(line_x, x_axis)
     plt.plot(points_x, points_y)
@@ -97,9 +100,11 @@ def main():
 
 if __name__ == "__main__":
     try:
+        # Prompt user for line function
         line_function, m, b = create_function(input("Please enter a function:\n> "))
+        # Prompt the user for the number of data points
         num_points = int(eval(input("Please enter the number of data points:\n> ")))
-        # size = float(eval(input("Please enter the x range:\n> ")))
+        # Prompt the user for the tolerance from the line the points should be generated
         tolerance = float(eval(input("Please enter the tolerance from the line:\n> ")))
     except:
         exit(1)
