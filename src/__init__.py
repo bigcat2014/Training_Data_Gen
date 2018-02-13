@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 from math import *
 import point
 from random import uniform
@@ -65,22 +64,12 @@ def main():
     # Generator object for creating points
     next_point = get_points()
 
-    # lists for x and y values of the points and the line function
-    points_x = []
-    points_y = []
-
     # Create all of the points and add their coordinates to the respective lists
     with open('output.csv', 'w') as output:
         output.write("x, y, creation_time\n")
         for x in range(num_points):
             p = point.Point(next(next_point, None))
-            points_x.append(p.location.x)
-            points_y.append(p.location.y)
             output.write("%s\n" % p)
-
-    # Plot all lines and points
-    plt.plot(points_x, points_y, '.')
-    plt.show()
 
 
 if __name__ == "__main__":
