@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from math import *
 import point
 from random import uniform
@@ -15,7 +14,7 @@ def create_function(function_representation):
             # return a line with slope of 1
             return x
 
-    # Get slope and y-intercept at 0
+    # Get slope and y-intercept at '0'
     delta_x = 0.001
 
     y0 = expression(0)
@@ -29,6 +28,8 @@ def create_function(function_representation):
 def get_points():
     # Starting point is y-intercept
     center_x, center_y = 0, b
+    # Step to get smooth lines
+    step = pi / 1024
     slope_delta_x = 0.001
     inv_slope = -1/m
     for x in range(num_points):
@@ -44,7 +45,7 @@ def get_points():
         point_y = center_y + point_delta_y
 
         # Find the x delta of the center point of a circle with radius 'tolerance'
-        center_delta_x = abs(tolerance) / sqrt(inv_slope**2 + 1)
+        center_delta_x = (abs(tolerance) / sqrt(inv_slope**2 + 1)) if tolerance else step
 
         # Find the new x and y values of the circle, with radius 'tolerance', along the line and intersecting
         # the previous x value at the point where the perpendicular line intersects the circle
@@ -61,40 +62,24 @@ def get_points():
 
 
 def main():
-    # Step to get smooth lines
-    step = pi/1024
     # Generator object for creating points
     next_point = get_points()
 
     # lists for x and y values of the points and the line function
     points_x = []
     points_y = []
-    line_x = []
-    line_y = []
 
     # Create all of the points and add their coordinates to the respective lists
-    for x in range(num_points):
-        p = point.Point(next(next_point, None))
-        points_x.append(p.location.x)
-        points_y.append(p.location.y)
-
-    # Calculate the range of the data
-    start = int(ceil(points_x[0]))
-    length = int(ceil(points_x[num_points - 1]) / step)
-
-    # Create list of y values to view the x-axis
-    x_axis = np.zeros(abs(length) - start)
-
-    # Create the lists of x and y values to display the function
-    for x in range(start, abs(length)):
-        line_x.append(x*step * (length / abs(length)))
-        line_y.append(line_function(x*step) * (length / abs(length)))
+    with open('output.csv', 'w') as output:
+        output.write("x, y, creation_time\n")
+        for x in range(num_points):
+            p = point.Point(next(next_point, None))
+            points_x.append(p.location.x)
+            points_y.append(p.location.y)
+            output.write("%s\n" % p)
 
     # Plot all lines and points
-    plt.plot(line_x, line_y)
-    plt.plot(line_x, x_axis)
-    plt.plot(points_x, points_y)
-    plt.scatter(points_x, points_y)
+    plt.plot(points_x, points_y, '.')
     plt.show()
 
 
