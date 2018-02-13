@@ -12,31 +12,13 @@ def create_function(function_representation):
         except:
             return x
     # Get slope and y-intercept at 0
-    y_intercept = expression(0)
-    y1 = expression(1)
-    slope = y1 - y_intercept
+    x0 = 0
+    x1 = 0.001
+    y_intercept = expression(x0)
+    y1 = expression(x1)
+    slope = (y1 - y_intercept) / (x1 - x0)
     return expression, slope, y_intercept
 
-
-def get_points():
-    center_x, center_y = 0, 0
-    inv_slope = -1/m
-    for x in range(num_points):
-        # Find a random offset as a radius from the point on the line
-        r = uniform(-1 * abs(tolerance), abs(tolerance))
-
-        point_delta_x = r * cos(atan(inv_slope))
-        point_delta_y = r * sin(atan(inv_slope))
-
-        point_x = center_x + point_delta_x
-        point_y = center_y + point_delta_y
-
-        center_delta_x = abs(tolerance) / sqrt(inv_slope**2 + 1)
-
-        center_x = point_x + center_delta_x
-        center_y = line_function(center_x)
-
-        yield point.Location(x=point_x, y=point_y)
 
 # r = tolerance
 # m = perpendicular slope
@@ -47,13 +29,43 @@ def get_points():
 # center_x0 + Δx0 = x1
 # center_y0 + Δy0 = y1
 
-# tolerance / (m + 1) = Δx1
-# tolerance * m / (m + 1) = Δy1
+# abs(tolerance) / sqrt(m**2 + 1) = center_Δx0
 
-# x1 + Δx1 = center_x1
+# x1 + center_Δx0 = center_x1
 # m * (x2) + b = center_y1
 
 # repeat
+def get_points():
+    # Starting point is y-intercept
+    center_x, center_y = 0, b
+    slope_delta_x = 0.001
+    inv_slope = -1/m
+    for x in range(num_points):
+        # Find a random offset as a radius from the point on the line
+        r = uniform(-1 * abs(tolerance), abs(tolerance))
+
+        # Find the x and y delta for r, chosen along the line perpendicular to the slope
+        point_delta_x = r * cos(atan(inv_slope))
+        point_delta_y = r * sin(atan(inv_slope))
+
+        # Find the new x and y values relative to the origin
+        point_x = center_x + point_delta_x
+        point_y = center_y + point_delta_y
+
+        # Find the x delta of the center point of a circle with radius 'tolerance'
+        center_delta_x = abs(tolerance) / sqrt(inv_slope**2 + 1)
+
+        # Find the new x and y values of the circle, with radius 'tolerance', along the line and intersecting
+        # the previous x value at the point where the perpendicular line intersects the circle
+        center_x = point_x + center_delta_x
+        center_y = line_function(center_x)
+
+        # Find the slope of the line at the new point
+        y0 = line_function(point_x)
+        y1 = line_function(point_x + slope_delta_x)
+        inv_slope = slope_delta_x / -(y1 - y0)
+
+        yield point.Location(x=point_x, y=point_y)
 
 
 def main():
