@@ -54,8 +54,8 @@ def get_points():
         # Find the slope of the line at the new point
         y0 = line_function(center_x)
         y1 = line_function(center_x + slope_delta_x)
-        delta_y = -(y1 - y0)
-        inv_slope = (slope_delta_x / delta_y) if delta_y > 0.0001 else 0
+        slope_delta_y = -(y1 - y0)
+        inv_slope = (slope_delta_x / slope_delta_y) if slope_delta_y > 0.0001 else 0
 
         yield point.Location(x=point_x, y=point_y)
 

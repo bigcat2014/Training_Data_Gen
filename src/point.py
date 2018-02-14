@@ -9,10 +9,14 @@ class Point:
 
     def __init__(self, location):
         self.location = location
-        self.creation_time = datetime.datetime
+        self.creation_time = datetime.datetime.now()
 
     def __repr__(self):
-        return "%.3f, %.3f, %s" % (self.location.x, self.location.y, str(self.creation_time.today()))
+        return "%.3f, %.3f, %s" % (self.location.x,
+                                   self.location.y,
+                                   str(self.creation_time.time().strftime("%M:%S.%f")))
 
     def __str__(self):
-        return "%.3f, %.3f, %s" % (self.location.x, self.location.y, str(self.creation_time.today()))
+        return "%.3f, %.3f, %s" % (self.location.x,
+                                   self.location.y,
+                                   str(self.creation_time.time().strftime("%M:%S.%f")))
